@@ -13,11 +13,6 @@ from lib_engine import Engine
 from lib_environment import discover
 from lib_selftest import selftest_setup, selftest_wipe
 from lib_util import cxx_defines, cxx_includedirs
-from lib_ide_vs import gen_vs
-from lib_ide_xcode import gen_xcode
-from lib_ide_make import gen_make
-from lib_ide_cmake import gen_cmake
-from lib_ide_qtcreator import gen_qtcreator
 from lib_version import VERSION
 
 # core definitions -----------------------------------------------------------
@@ -432,49 +427,6 @@ def main(*argv, **kwargs):
 		if len(args.get("out")):
 			engine.save(args.get("out"))
 
-		ide = args.get("ide")
-
-		if ide in ["vs", "vs2012", "vs2013", "vs2015"]:
-			if ide == "vs":
-				ide = "vs" + engine.variables.get("toolset_msc_ver", "")
-			gen_vs(
-				engine.context.all_files,
-				cxx_defines(engine.variables.get("defines", "")),
-				cxx_includedirs(engine.variables.get("includedirs", "")),
-				args.get("ide_prj"),
-				ide,
-				args.get("ide_env"))
-		elif ide in ["xcode"]:
-			gen_xcode(
-				engine.context.all_files,
-				cxx_includedirs(engine.variables.get("includedirs", "")),
-				args.get("ide_prj"),
-				args.get("in"),
-				args.get("ide_env"),
-				args.get("ninja_ide_gen"))
-		elif ide in ["make"]:
-			gen_make(
-				args.get("in"),
-				args.get("ide_env"),
-				args.get("ninja_ide_gen"))
-		elif ide in ["qtcreator"]:
-			gen_qtcreator(
-				engine.context.all_files,
-				cxx_defines(engine.variables.get("defines", "")),
-				cxx_includedirs(engine.variables.get("includedirs", "")),
-				args.get("ide_prj"),
-				args.get("in"),
-				args.get("ide_env"),
-				args.get("ninja_ide_gen"))
-		elif ide in ["cmake"]:
-			gen_cmake(
-				engine.context.all_files,
-				cxx_includedirs(engine.variables.get("includedirs", "")),
-				args.get("ide_prj"),
-				args.get("in"),
-				args.get("ide_env"))
-		elif ide is not None:
-			raise ValueError("unknown ide '%s', available ide's : vs, vs2012, vs2013, vs2015, xcode, make, qtcreator, cmake" % ide)
 	if len(sys.argv) == 1:
 		sys.exit(subprocess.call("ninja" + (" -f " + args["out"] if len(args["out"]) else "")))
 
